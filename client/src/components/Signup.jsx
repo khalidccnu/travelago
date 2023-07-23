@@ -35,7 +35,7 @@ const validateForm = (values) => {
 };
 
 const Signup = () => {
-  const { isUserLoading, setUserLoading, createUserWithEP } = useAuth();
+  const { setUserLoading, createUserWithEP } = useAuth();
   const formik = useFormik({
     initialValues: {
       fullName: "",
@@ -182,14 +182,7 @@ const Signup = () => {
           type="submit"
           className="btn btn-sm w-full bg-[#3d429c] hover:bg-transparent text-white hover:text-[#3d429c] !border-[#3d429c] rounded normal-case"
         >
-          <span>Signup</span>
-          {/* loading spinner */}
-          {isUserLoading ? (
-            <span
-              className="inline-block h-4 w-4 border-2 border-current border-r-transparent rounded-full animate-spin"
-              role="status"
-            ></span>
-          ) : null}
+          Signup
         </button>
       </form>
     </div>

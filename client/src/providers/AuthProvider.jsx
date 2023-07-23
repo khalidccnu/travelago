@@ -3,9 +3,11 @@ import axios from "axios";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
 } from "firebase/auth";
-import { auth } from "../utils/firebase.config.js";
+import { auth, googleProvider } from "../utils/firebase.config.js";
 
 // initialize authentication provider
 export const AuthContext = createContext({});
@@ -34,6 +36,26 @@ const AuthProvider = ({ children }) => {
     });
   };
 
+  // get user authentication from firebase
+  const signInWithEP = async (email, password) => {
+    setUserLoading(true);
+
+    return await signInWithEmailAndPassword(auth, email, password);
+  };
+
+  // get user google account authentication from firebase
+  const signInWithGoogle = async (_) => {
+    setUserLoading(true);
+
+    return await signInWithPopup(auth, googleProvider).then((userCred) =>
+      createUser(userCred.user.uid, {
+        email: userCred.user.email,
+        fullName: userCred.user.displayName,
+        userImg: userCred.user.photoURL,
+      })
+    );
+  };
+
   // create user in firebase
   const createUserWithEP = async (values) => {
     setUserLoading(true);
@@ -52,6 +74,8 @@ const AuthProvider = ({ children }) => {
     isUserLoading,
     setUserLoading,
     user,
+    signInWithEP,
+    signInWithGoogle,
     createUserWithEP,
     logOut,
   };

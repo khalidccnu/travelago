@@ -1,12 +1,14 @@
 import React from "react";
+import useAuth from "../hooks/useAuth.js";
 import Signin from "../components/Signin.jsx";
 
 const Home = () => {
+  const { isUserLoading, user } = useAuth();
+
   return (
     <section>
       <div className="container">
-        {/* show sign-in component */}
-        <Signin />
+        {!isUserLoading ? !user ? <Signin /> : null : null}
       </div>
     </section>
   );

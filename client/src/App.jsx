@@ -1,6 +1,7 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { IKContext } from "imagekitio-react";
+import AuthProvider from "./providers/AuthProvider.jsx";
 import Root from "./Root.jsx";
 import Home from "./pages/Home.jsx";
 
@@ -19,14 +20,17 @@ const App = () => {
   ]);
 
   return (
-    // imagekit authentication context
-    <IKContext
-      publicKey={import.meta.env.VITE_IK_PL_KEY}
-      urlEndpoint={`https://ik.imagekit.io/${import.meta.env.VITE_IK_ID}`}
-      authenticationEndpoint={`${import.meta.env.VITE_API_URL}/ik`}
-    >
-      <RouterProvider router={router} />
-    </IKContext>
+    // user authentication provider
+    <AuthProvider>
+      {/* imagekit authentication provider */}
+      <IKContext
+        publicKey={import.meta.env.VITE_IK_PL_KEY}
+        urlEndpoint={`https://ik.imagekit.io/${import.meta.env.VITE_IK_ID}`}
+        authenticationEndpoint={`${import.meta.env.VITE_API_URL}/ik`}
+      >
+        <RouterProvider router={router} />
+      </IKContext>
+    </AuthProvider>
   );
 };
 

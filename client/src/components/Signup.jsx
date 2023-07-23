@@ -1,7 +1,8 @@
 import React from "react";
 import { useFormik } from "formik";
-import { IKUpload } from "imagekitio-react";
 import { FaUpload } from "react-icons/fa";
+import toast from "react-hot-toast";
+import useAuth from "../hooks/useAuth.js";
 
 // check sign-up form validation
 const validateForm = (values) => {
@@ -34,6 +35,7 @@ const validateForm = (values) => {
 };
 
 const Signup = () => {
+  const { isUserLoading, setUserLoading, createUserWithEP } = useAuth();
   const formik = useFormik({
     initialValues: {
       fullName: "",
@@ -43,11 +45,21 @@ const Signup = () => {
       userImg: null,
     },
     validate: validateForm,
-    onSubmit: (values) => {},
-  });
+    onSubmit: (values) => {
+      createUserWithEP(values)
+        .then((_) =>
+          toast.success(
+            "Your account has been created successfully! You are being redirected, please wait..."
+          )
+        )
+        .catch((err) => {
+          setUserLoading(false);
 
-  // user image success response
-  const ikSuccess = (response) => formik.setFieldValue("userImg", response);
+          if (err.message === "Firebase: Error (auth/email-already-in-use).")
+            toast.error("Email already in use!");
+        });
+    },
+  });
 
   return (
     <div className="modal-box max-w-sm">
@@ -133,13 +145,15 @@ const Signup = () => {
         </div>
         {/* profile image box */}
         <div>
-          <IKUpload
+          <input
+            type="file"
             name="userImg"
             id="userImg"
             className="hidden"
-            folder={"/travelago/users"}
-            onSuccess={ikSuccess}
             accept="image/*"
+            onChange={(e) =>
+              formik.setFieldValue("userImg", e.currentTarget.files[0])
+            }
           />
           <label
             htmlFor="userImg"
@@ -148,7 +162,7 @@ const Signup = () => {
             {formik.values.userImg ? (
               formik.values.userImg.name.substring(
                 0,
-                formik.values.userImg.name.lastIndexOf("_")
+                formik.values.userImg.name.lastIndexOf(".")
               )
             ) : (
               <>
@@ -163,12 +177,19 @@ const Signup = () => {
             </small>
           ) : null}
         </div>
-        {/* form submit */}
+        {/* form submit button */}
         <button
           type="submit"
           className="btn btn-sm w-full bg-[#3d429c] hover:bg-transparent text-white hover:text-[#3d429c] !border-[#3d429c] rounded normal-case"
         >
-          Signup
+          <span>Signup</span>
+          {/* loading spinner */}
+          {isUserLoading ? (
+            <span
+              className="inline-block h-4 w-4 border-2 border-current border-r-transparent rounded-full animate-spin"
+              role="status"
+            ></span>
+          ) : null}
         </button>
       </form>
     </div>

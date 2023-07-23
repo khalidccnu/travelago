@@ -16,7 +16,6 @@ const upload = multer({ dest: "uploads/" });
 // control cors
 const corsOptions = {
   origin: "*",
-  headers: "Origin, X-Requested-With, Content-Type, Accept",
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
   optionSuccessStatus: 200,
@@ -62,9 +61,55 @@ const uploadUI = async (req, res) => {
     });
 };
 
+// verify token from client
+const verifyJWT = (req, res, next) => {
+  const authorization = req.headers.authorization;
+
+  if (!authorization)
+    return res
+      .status(401)
+      .send({ error: true, message: "Unauthorized access!" });
+
+  jwt.verify(
+    authorization.split(" ")[1],
+    process.env.ACCESS_TOKEN_SECRET,
+    (err, decoded) => {
+      if (err)
+        return res
+          .status(403)
+          .send({ error: true, message: "Forbidden access!" });
+
+      req.decoded = decoded;
+      next();
+    }
+  );
+};
+
 (async (_) => {
   try {
     const users = mdbClient.db("travelago").collection("users");
+
+    // self verification
+    const verifySelf = async (req, res, next) => {
+      if (req.decoded._id !== req.params.identifier)
+        return res
+          .status(403)
+          .send({ error: true, message: "Forbidden access!" });
+
+      next();
+    };
+
+    app.get(
+      "/self/users/:identifier",
+      verifyJWT,
+      verifySelf,
+      async (req, res) => {
+        const query = { _id: req.params.identifier };
+        const result = await users.findOne(query);
+
+        res.send(result);
+      }
+    );
 
     // create user
     app.post("/users", async (req, res) => {

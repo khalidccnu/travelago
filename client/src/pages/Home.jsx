@@ -1,6 +1,7 @@
 import React from "react";
 import useAuth from "../hooks/useAuth.js";
 import Signin from "../components/Signin.jsx";
+import Dashboard from "../components/Dashboard.jsx";
 
 const Home = () => {
   const { isUserLoading, user } = useAuth();
@@ -11,7 +12,9 @@ const Home = () => {
         {!isUserLoading ? (
           !user ? (
             <Signin />
-          ) : null
+          ) : (
+            <Dashboard />
+          )
         ) : (
           // loader
           <div className="flex items-center justify-center min-h-screen">

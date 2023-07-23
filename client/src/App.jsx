@@ -26,9 +26,7 @@ const App = () => {
     <AuthProvider>
       {/* imagekit authentication provider */}
       <IKContext
-        publicKey={import.meta.env.VITE_IK_PL_KEY}
         urlEndpoint={`https://ik.imagekit.io/${import.meta.env.VITE_IK_ID}`}
-        authenticationEndpoint={`${import.meta.env.VITE_API_URL}/ik`}
       >
         <RouterProvider router={router} />
       </IKContext>

@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { IKImage } from "imagekitio-react";
 import { CgMenuLeft } from "react-icons/cg";
-import { FaAngleLeft, FaSignOutAlt, FaUser } from "react-icons/fa";
+import { FaAngleLeft, FaHome, FaSignOutAlt, FaUser } from "react-icons/fa";
 import { FaUserGroup } from "react-icons/fa6";
 import useAuth from "../hooks/useAuth.js";
 import useUserInfo from "../hooks/useUserInfo.js";
+import DashboardRoot from "./DashboardRoot.jsx";
 
 const Dashboard = () => {
+  const location = useLocation();
   const { logOut } = useAuth();
   const [, userInfo] = useUserInfo();
   const [hbMenu, setHbMenu] = useState(true);
@@ -55,6 +57,20 @@ const Dashboard = () => {
             <ul className="flex flex-col bg-gray-200 p-5 mt-5 rounded space-y-3">
               <li>
                 <NavLink
+                  to="/"
+                  className={({ isActive }) =>
+                    "flex px-2 py-1 leading-5 gap-1 rounded transition-colors duration-500 " +
+                    (isActive
+                      ? "bg-[#3d429c] text-white"
+                      : "hover:bg-[#3d429c] hover:text-white")
+                  }
+                >
+                  <FaHome />
+                  <span>Home</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
                   to="profile"
                   className={({ isActive }) =>
                     "flex px-2 py-1 leading-5 gap-1 rounded transition-colors duration-500 " +
@@ -99,6 +115,7 @@ const Dashboard = () => {
             className="md:hidden text-lg mb-5 cursor-pointer"
             onClick={(_) => setHbMenu(false)}
           />
+          {location.pathname === "/" ? <DashboardRoot /> : null}
           <Outlet />
         </div>
       </div>

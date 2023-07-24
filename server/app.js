@@ -164,6 +164,15 @@ const verifyJWT = (req, res, next) => {
       }
     );
 
+    // get all groups data
+    app.get("/groups/:identifier", verifyJWT, async (req, res) => {
+      const query = { owner: { $not: { $eq: req.params.identifier } } };
+      const cursor = groups.find(query).sort({ groupName: 1 });
+      const result = await cursor.toArray();
+
+      res.send(result);
+    });
+
     // create group
     app.post("/groups/:identifier", verifyJWT, verifySelf, async (req, res) => {
       const group = req.body;

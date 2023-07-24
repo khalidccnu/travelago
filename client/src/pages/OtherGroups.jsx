@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
 import useAxiosIns from "../hooks/useAxiosIns.js";
 import useUserInfo from "../hooks/useUserInfo.js";
-import MyGroupsCard from "../components/MyGroupsCard.jsx";
+import OtherGroupsCard from "../components/OtherGroupsCard.jsx";
 
 const MyGroups = () => {
-  const { isReload } = useOutletContext();
   const axiosIns = useAxiosIns();
   const [isGroupLoading, setGroupLoading] = useState(true);
   const [groups, setGroups] = useState([]);
@@ -15,20 +13,20 @@ const MyGroups = () => {
   useEffect(
     (_) => {
       if (_id) {
-        axiosIns.get(`/self/groups/${_id}`).then((response) => {
+        axiosIns.get(`/groups/${_id}`).then((response) => {
           setGroups(response.data);
           setGroupLoading(false);
         });
       }
     },
-    [_id, isReload]
+    [_id]
   );
 
   return !isGroupLoading ? (
     groups.length ? (
       <div className={`grid grid-cols-1 lg:grid-cols-2 gap-7 mt-10`}>
         {groups.map((group) => (
-          <MyGroupsCard key={group._id} group={group} />
+          <OtherGroupsCard key={group._id} group={group} />
         ))}
       </div>
     ) : (
@@ -46,7 +44,7 @@ const MyGroups = () => {
             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
           ></path>
         </svg>
-        <span>You did not create any group yet.</span>
+        <span>There are no groups.</span>
       </div>
     )
   ) : null;

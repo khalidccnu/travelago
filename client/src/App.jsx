@@ -6,6 +6,7 @@ import Home from "./pages/Home.jsx";
 import Error from "./pages/Error.jsx";
 import Groups from "./pages/Groups.jsx";
 import MyGroups from "./pages/MyGroups.jsx";
+import OtherGroups from "./pages/OtherGroups.jsx";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -21,6 +22,10 @@ const App = () => {
             {
               path: "my",
               element: <MyGroups />,
+            },
+            {
+              path: "other",
+              element: <OtherGroups />,
             },
           ],
         },

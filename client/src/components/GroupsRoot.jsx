@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import useAxiosIns from "../hooks/useAxiosIns.js";
 import useUserInfo from "../hooks/useUserInfo.js";
-import OtherGroupsCard from "../components/OtherGroupsCard.jsx";
+import GroupsRootCard from "./GroupsRootCard.jsx";
 
-const OtherGroups = () => {
+const GroupsRoot = () => {
   const axiosIns = useAxiosIns();
   const [isReload, setReload] = useState(false);
   const [isGroupLoading, setGroupLoading] = useState(true);
@@ -12,10 +12,10 @@ const OtherGroups = () => {
   const [, userInfo] = useUserInfo();
   const { _id } = userInfo ?? {};
 
-  // connect with group
-  const connectGroup = (gid, groupName) => {
-    axiosIns.put(`/groups/connect/${_id}/${gid}`).then((_) => {
-      toast.success(`You connected successfully with ${groupName}!`);
+  // disconnect with group
+  const disConnectGroup = (gid, groupName) => {
+    axiosIns.put(`/groups/disconnect/${_id}/${gid}`).then((_) => {
+      toast.success(`You disconnected successfully from ${groupName}!`);
       setReload(!isReload);
     });
   };
@@ -23,7 +23,7 @@ const OtherGroups = () => {
   useEffect(
     (_) => {
       if (_id) {
-        axiosIns.get(`/groups/${_id}?method=not-connect`).then((response) => {
+        axiosIns.get(`/groups/${_id}?method=connect`).then((response) => {
           setGroups(response.data);
           setGroupLoading(false);
         });
@@ -36,9 +36,9 @@ const OtherGroups = () => {
     groups.length ? (
       <div className={`grid grid-cols-1 lg:grid-cols-2 gap-7 mt-10`}>
         {groups.map((group) => (
-          <OtherGroupsCard
+          <GroupsRootCard
             key={group._id}
-            connectGroup={connectGroup}
+            disConnectGroup={disConnectGroup}
             group={group}
           />
         ))}
@@ -64,4 +64,4 @@ const OtherGroups = () => {
   ) : null;
 };
 
-export default OtherGroups;
+export default GroupsRoot;

@@ -201,9 +201,16 @@ const verifyJWT = (req, res, next) => {
 
     // get all groups data
     app.get("/groups/:identifier", verifyJWT, async (req, res) => {
+      let filterUsers = {};
+
+      if (req.query.method === "connect")
+        filterUsers = { $in: [req.params.identifier] };
+      if (req.query.method === "not-connect")
+        filterUsers = { $nin: [req.params.identifier] };
+
       const query = {
         owner: { $not: { $eq: req.params.identifier } },
-        users: { $nin: [req.params.identifier] },
+        users: filterUsers,
       };
       const cursor = groups.find(query).sort({ groupName: 1 });
       const result = await cursor.toArray();
@@ -237,7 +244,7 @@ const verifyJWT = (req, res, next) => {
     );
 
     // connect group
-    app.put("/groups/:uid/:gid", verifyJWT, async (req, res) => {
+    app.put("/groups/connect/:uid/:gid", verifyJWT, async (req, res) => {
       await users.updateOne(
         { _id: req.params.uid },
         {
@@ -249,6 +256,25 @@ const verifyJWT = (req, res, next) => {
         { _id: new ObjectId(req.params.gid) },
         {
           $push: { users: req.params.uid },
+        }
+      );
+
+      res.status(200).send({ success: true, message: "OK!" });
+    });
+
+    // disconnect group
+    app.put("/groups/disconnect/:uid/:gid", verifyJWT, async (req, res) => {
+      await users.updateOne(
+        { _id: req.params.uid },
+        {
+          $pull: { groups: req.params.gid },
+        }
+      );
+
+      await groups.updateOne(
+        { _id: new ObjectId(req.params.gid) },
+        {
+          $pull: { users: req.params.uid },
         }
       );
 

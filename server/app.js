@@ -154,6 +154,20 @@ const verifyJWT = (req, res, next) => {
       }
     );
 
+    // get specific user data
+    app.get("/users/:uid", verifyJWT, async (req, res) => {
+      const query = { _id: req.params.uid };
+      const options = {
+        projection: {
+          fullName: 1,
+          userImg: 1,
+        },
+      };
+      const result = await users.findOne(query, options);
+
+      res.send(result);
+    });
+
     // create user
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -218,6 +232,15 @@ const verifyJWT = (req, res, next) => {
       upload.single("groupImg"),
       uploadGI
     );
+
+    // get all group posts data
+    app.get("/posts/:gid", verifyJWT, async (req, res) => {
+      const query = { group_id: req.params.gid };
+      const cursor = posts.find(query).sort({ date: -1 });
+      const result = await cursor.toArray();
+
+      res.send(result);
+    });
 
     // create group post
     app.post("/posts", verifyJWT, async (req, res) => {

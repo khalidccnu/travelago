@@ -5,6 +5,7 @@ import { FaUsers } from "react-icons/fa6";
 import useAxiosIns from "../hooks/useAxiosIns.js";
 import useUserInfo from "../hooks/useUserInfo.js";
 import GroupUploadPost from "../components/GroupUploadPost.jsx";
+import GroupPosts from "../components/GroupPosts.jsx";
 
 const ViewGroup = () => {
   const { gid } = useParams();
@@ -46,6 +47,8 @@ const ViewGroup = () => {
       <div>
         {/* write post */}
         <GroupUploadPost _id={_id} group_id={group_id} />
+        {/* show group posts */}
+        <GroupPosts _id={_id} group_id={group_id} />
       </div>
     </div>
   );

@@ -218,6 +218,26 @@ const verifyJWT = (req, res, next) => {
       res.send(result);
     });
 
+    // get limited groups data
+    app.get("/groups/limit/:identifier", verifyJWT, async (req, res) => {
+      let filterUsers = {};
+
+      if (req.query.method === "not-connect")
+        filterUsers = { $nin: [req.params.identifier] };
+
+      const query = {
+        owner: { $not: { $eq: req.params.identifier } },
+        users: filterUsers,
+      };
+      const cursor = groups
+        .find(query)
+        .limit(+req.query.limit || 0)
+        .sort({ groupName: 1 });
+      const result = await cursor.toArray();
+
+      res.send(result);
+    });
+
     // get specific group data
     app.get("/groups/id/:gid", verifyJWT, async (req, res) => {
       const query = { _id: new ObjectId(req.params.gid) };

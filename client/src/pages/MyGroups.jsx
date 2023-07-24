@@ -1,16 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
+import toast from "react-hot-toast";
 import useAxiosIns from "../hooks/useAxiosIns.js";
 import useUserInfo from "../hooks/useUserInfo.js";
 import MyGroupsCard from "../components/MyGroupsCard.jsx";
 
 const MyGroups = () => {
-  const { isReload } = useOutletContext();
+  const { isReload, setReload } = useOutletContext();
   const axiosIns = useAxiosIns();
   const [isGroupLoading, setGroupLoading] = useState(true);
   const [groups, setGroups] = useState([]);
   const [, userInfo] = useUserInfo();
   const { _id } = userInfo ?? {};
+
+  // delete group data
+  const deleteGroup = (gid, iid) => {
+    axiosIns.delete(`/self/groups/${_id}/${gid}/${iid}`).then((_) => {
+      toast.success("Group deleted!");
+      setReload(!isReload);
+    });
+  };
 
   useEffect(
     (_) => {
@@ -28,7 +37,11 @@ const MyGroups = () => {
     groups.length ? (
       <div className={`grid grid-cols-1 lg:grid-cols-2 gap-7 mt-10`}>
         {groups.map((group) => (
-          <MyGroupsCard key={group._id} group={group} />
+          <MyGroupsCard
+            key={group._id}
+            deleteGroup={deleteGroup}
+            group={group}
+          />
         ))}
       </div>
     ) : (

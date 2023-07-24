@@ -233,6 +233,21 @@ const verifyJWT = (req, res, next) => {
       uploadGI
     );
 
+    // delete group
+    app.delete(
+      "/self/groups/:identifier/:gid/:imageId",
+      verifyJWT,
+      verifySelf,
+      async (req, res) => {
+        const query = { _id: new ObjectId(req.params.gid) };
+        const result = await groups.deleteOne(query);
+
+        if (result.deletedCount) await imagekit.deleteFile(req.params.imageId);
+
+        res.send(result);
+      }
+    );
+
     // get all group posts data
     app.get("/posts/:gid", verifyJWT, async (req, res) => {
       const query = { group_id: req.params.gid };

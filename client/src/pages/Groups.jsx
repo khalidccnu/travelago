@@ -39,7 +39,7 @@ const Groups = () => {
           </button>
         ) : null}
       </div>
-      <Outlet context={{ isReload }} />
+      <Outlet context={{ isReload, setReload }} />
       <dialog id="new_group" className="modal">
         <NewGroup isReload={isReload} setReload={setReload} />
       </dialog>

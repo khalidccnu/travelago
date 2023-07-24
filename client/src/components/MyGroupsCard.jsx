@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { IKImage } from "imagekitio-react";
 import { FaTrash } from "react-icons/fa6";
 
-const MyGroupsCard = ({ group }) => {
+const MyGroupsCard = ({ deleteGroup, group }) => {
   const { _id, groupImg, groupName } = group;
   const navigate = useNavigate();
 
@@ -16,7 +16,7 @@ const MyGroupsCard = ({ group }) => {
           {/* group image */}
           <figure className="w-40 h-40 sm:w-32 sm:h-32 rounded">
             <IKImage
-              path={groupImg}
+              path={groupImg.filePath}
               className="w-full h-full object-cover"
               transformation={[{ q: "40" }]}
             />
@@ -32,7 +32,10 @@ const MyGroupsCard = ({ group }) => {
           >
             View group
           </button>
-          <button className="btn btn-sm bg-red-500 hover:bg-transparent text-white hover:text-red-500 !border-red-500 rounded normal-case">
+          <button
+            className="btn btn-sm bg-red-500 hover:bg-transparent text-white hover:text-red-500 !border-red-500 rounded normal-case"
+            onClick={(_) => deleteGroup(_id, groupImg.fileId)}
+          >
             <FaTrash />
           </button>
         </div>

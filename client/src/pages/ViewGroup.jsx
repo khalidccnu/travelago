@@ -32,7 +32,10 @@ const ViewGroup = () => {
     <div className={`mt-10`}>
       {/* group image */}
       <figure className="w-full h-52 rounded overflow-hidden">
-        <IKImage path={groupImg} className="w-full h-full object-cover" />
+        <IKImage
+          path={groupImg?.filePath}
+          className="w-full h-full object-cover"
+        />
       </figure>
       <div className={`flex justify-between items-center mt-3`}>
         {/* group name */}

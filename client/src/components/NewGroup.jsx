@@ -36,9 +36,13 @@ const NewGroup = ({ isReload, setReload }) => {
       formData.append("groupImg", values.groupImg);
 
       // upload image to server
-      await axiosIns
-        .post(`/groups/upload-gi/${_id}`, formData)
-        .then((response) => (values.groupImg = response.data.filePath));
+      await axiosIns.post(`/groups/upload-gi/${_id}`, formData).then(
+        (response) =>
+          (values.groupImg = {
+            fileId: response.data.fileId,
+            filePath: response.data.filePath,
+          })
+      );
 
       // insert data to server
       axiosIns

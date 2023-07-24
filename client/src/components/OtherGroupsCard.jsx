@@ -16,7 +16,7 @@ const MyGroupsCard = ({ group }) => {
           {/* group image */}
           <figure className="w-40 h-40 sm:w-32 sm:h-32 rounded">
             <IKImage
-              path={groupImg}
+              path={groupImg.filePath}
               className="w-full h-full object-cover"
               transformation={[{ q: "40" }]}
             />

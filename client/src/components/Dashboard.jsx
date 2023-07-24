@@ -6,7 +6,7 @@ import { FaAngleLeft, FaHome, FaSignOutAlt, FaUser } from "react-icons/fa";
 import { FaUserGroup } from "react-icons/fa6";
 import useAuth from "../hooks/useAuth.js";
 import useUserInfo from "../hooks/useUserInfo.js";
-import DashboardRoot from "./DashboardRoot.jsx";
+import Feed from "./Feed.jsx";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -119,7 +119,7 @@ const Dashboard = () => {
             className="md:hidden text-lg mb-5 cursor-pointer"
             onClick={(_) => setHbMenu(false)}
           />
-          {location.pathname === "/" ? <DashboardRoot /> : null}
+          {location.pathname === "/" ? <Feed /> : null}
           <Outlet />
         </div>
       </div>

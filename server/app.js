@@ -307,6 +307,31 @@ const verifyJWT = (req, res, next) => {
       }
     );
 
+    // get user connected groups all posts
+    app.get(
+      "/posts/users/:identifier",
+      verifyJWT,
+      verifySelf,
+      async (req, res) => {
+        const user = await users.findOne({ _id: req.params.identifier });
+
+        if (!user.groups) user.groups = [];
+
+        const groupsResult = await groups
+          .find({ owner: req.params.identifier }, { projection: { _id: 1 } })
+          .toArray();
+
+        const groupIds = [];
+        groupsResult.forEach((group) => groupIds.push(group._id.toString()));
+
+        const query = { group_id: { $in: [...user.groups, ...groupIds] } };
+        const cursor = posts.find(query).sort({ date: -1 });
+        const result = await cursor.toArray();
+
+        res.send(result);
+      }
+    );
+
     // get all group posts data
     app.get("/posts/:gid", verifyJWT, async (req, res) => {
       const query = { group_id: req.params.gid };

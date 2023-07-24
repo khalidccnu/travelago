@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Lottie from "lottie-react";
 import useUserInfo from "../hooks/useUserInfo.js";
 
-const DashboardRoot = () => {
+const EmptyFeed = () => {
   const [, userInfo] = useUserInfo();
   const [greetings, setGreetings] = useState(null);
   const [anmCommunity, setAnmCommunity] = useState(null);
@@ -28,11 +28,14 @@ const DashboardRoot = () => {
       {anmCommunity ? (
         <Lottie className="w-full" animationData={anmCommunity} loop={true} />
       ) : null}
-      <h2 className="font-bold text-lg text-center">
-        Good {greetings}, {userInfo?.fullName}
-      </h2>
+      <div className={`text-center`}>
+        <h2 className="font-bold text-lg">
+          Good {greetings}, {userInfo?.fullName}
+        </h2>
+        <span>There are no group posts!</span>
+      </div>
     </div>
   );
 };
 
-export default DashboardRoot;
+export default EmptyFeed;

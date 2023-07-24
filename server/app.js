@@ -226,6 +226,17 @@ const verifyJWT = (req, res, next) => {
       res.send(result);
     });
 
+    // get group users data
+    app.get("/group/users/:gid", verifyJWT, async (req, res) => {
+      const query = {
+        groups: { $in: [req.params.gid] },
+      };
+      const cursor = users.find(query).sort({ fullName: 1 });
+      const result = await cursor.toArray();
+
+      res.send(result);
+    });
+
     // create group
     app.post("/groups/:identifier", verifyJWT, verifySelf, async (req, res) => {
       const group = req.body;

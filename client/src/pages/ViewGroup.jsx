@@ -6,6 +6,7 @@ import useAxiosIns from "../hooks/useAxiosIns.js";
 import useUserInfo from "../hooks/useUserInfo.js";
 import GroupUploadPost from "../components/GroupUploadPost.jsx";
 import GroupPosts from "../components/GroupPosts.jsx";
+import GroupMembers from "../components/GroupMembers.jsx";
 
 const ViewGroup = () => {
   const { gid } = useParams();
@@ -44,6 +45,7 @@ const ViewGroup = () => {
         {/* group members */}
         <div
           className={`flex justify-center items-center w-10 h-10 bg-[#3d429c] hover:bg-transparent text-white hover:text-[#3d429c] border !border-[#3d429c] rounded-full cursor-pointer`}
+          onClick={() => window.members_modal.showModal()}
         >
           <FaUsers />
         </div>
@@ -59,6 +61,10 @@ const ViewGroup = () => {
         {/* show group posts */}
         <GroupPosts isReload={isReload} _id={_id} group_id={group_id} />
       </div>
+      {/* group members modal */}
+      <dialog id="members_modal" className="modal">
+        <GroupMembers group_id={group_id} />
+      </dialog>
     </div>
   );
 };

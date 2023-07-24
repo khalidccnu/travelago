@@ -1,4 +1,5 @@
 import React from "react";
+import { Toaster } from "react-hot-toast";
 import useAuth from "../hooks/useAuth.js";
 import Signin from "../components/Signin.jsx";
 import Dashboard from "../components/Dashboard.jsx";
@@ -29,6 +30,7 @@ const Home = () => {
           </div>
         )}
       </div>
+      <Toaster />
     </section>
   );
 };

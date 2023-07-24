@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { IKImage } from "imagekitio-react";
 import { CgMenuLeft } from "react-icons/cg";
 import { FaAngleLeft, FaHome, FaSignOutAlt, FaUser } from "react-icons/fa";
@@ -9,11 +9,15 @@ import useUserInfo from "../hooks/useUserInfo.js";
 import DashboardRoot from "./DashboardRoot.jsx";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const { logOut } = useAuth();
   const [, userInfo] = useUserInfo();
   const [hbMenu, setHbMenu] = useState(true);
   const { fullName, userImg } = userInfo ?? {};
+
+  // sign-out from authentication
+  const handleLogout = (_) => logOut().then((_) => navigate("/"));
 
   // handle responsive ui
   const handleResize = (_) => {
@@ -100,7 +104,7 @@ const Dashboard = () => {
               <li>
                 <span
                   className="flex px-2 py-1 leading-5 gap-1 rounded hover:bg-[#3d429c] hover:text-white cursor-pointer transition-colors duration-500"
-                  onClick={logOut}
+                  onClick={handleLogout}
                 >
                   <FaSignOutAlt />
                   <span>Logout</span>

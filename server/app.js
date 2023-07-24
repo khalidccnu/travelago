@@ -61,6 +61,26 @@ const uploadUI = async (req, res) => {
     });
 };
 
+// upload group image to imagekit
+const uploadGI = async (req, res) => {
+  const imgBuffer = await fs.promises.readFile(req.file.path);
+
+  await imagekit
+    .upload({
+      file: imgBuffer,
+      fileName: req.file.originalname,
+      folder: "travelago/groups",
+    })
+    .then((response) => {
+      fs.unlinkSync(req.file.path);
+      res.send(response);
+    })
+    .catch((error) => {
+      fs.unlinkSync(req.file.path);
+      res.send(error);
+    });
+};
+
 // verify token from client
 const verifyJWT = (req, res, next) => {
   const authorization = req.headers.authorization;
@@ -88,6 +108,7 @@ const verifyJWT = (req, res, next) => {
 (async (_) => {
   try {
     const users = mdbClient.db("travelago").collection("users");
+    const groups = mdbClient.db("travelago").collection("groups");
 
     // self verification
     const verifySelf = async (req, res, next) => {
@@ -99,6 +120,7 @@ const verifyJWT = (req, res, next) => {
       next();
     };
 
+    // get self user data
     app.get(
       "/self/users/:identifier",
       verifyJWT,
@@ -127,6 +149,37 @@ const verifyJWT = (req, res, next) => {
 
     // upload user image to server
     app.post("/users/upload-ui", upload.single("userImg"), uploadUI);
+
+    // get self groups data
+    app.get(
+      "/self/groups/:identifier",
+      verifyJWT,
+      verifySelf,
+      async (req, res) => {
+        const query = { owner: req.params.identifier };
+        const cursor = groups.find(query).sort({ groupName: 1 });
+        const result = await cursor.toArray();
+
+        res.send(result);
+      }
+    );
+
+    // create group
+    app.post("/groups/:identifier", verifyJWT, verifySelf, async (req, res) => {
+      const group = req.body;
+      const result = await groups.insertOne(group);
+
+      res.send(result);
+    });
+
+    // upload group image to server
+    app.post(
+      "/groups/upload-gi/:identifier",
+      verifyJWT,
+      verifySelf,
+      upload.single("groupImg"),
+      uploadGI
+    );
 
     // test mongodb connection
     mdbClient

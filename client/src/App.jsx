@@ -8,6 +8,7 @@ import Profile from "./pages/Profile.jsx";
 import Groups from "./pages/Groups.jsx";
 import MyGroups from "./pages/MyGroups.jsx";
 import OtherGroups from "./pages/OtherGroups.jsx";
+import ViewGroup from "./pages/ViewGroup.jsx";
 
 const App = () => {
   const router = createBrowserRouter([
@@ -31,6 +32,10 @@ const App = () => {
             {
               path: "other",
               element: <OtherGroups />,
+            },
+            {
+              path: ":gid",
+              element: <ViewGroup />,
             },
           ],
         },

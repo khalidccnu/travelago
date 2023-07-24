@@ -3,7 +3,7 @@ require("dotenv").config();
 const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const multer = require("multer");
 const imageKit = require("imagekit");
 const jwt = require("jsonwebtoken");
@@ -81,6 +81,26 @@ const uploadGI = async (req, res) => {
     });
 };
 
+// upload group post image to imagekit
+const uploadPI = async (req, res) => {
+  const imgBuffer = await fs.promises.readFile(req.file.path);
+
+  await imagekit
+    .upload({
+      file: imgBuffer,
+      fileName: req.file.originalname,
+      folder: "travelago/posts",
+    })
+    .then((response) => {
+      fs.unlinkSync(req.file.path);
+      res.send(response);
+    })
+    .catch((error) => {
+      fs.unlinkSync(req.file.path);
+      res.send(error);
+    });
+};
+
 // verify token from client
 const verifyJWT = (req, res, next) => {
   const authorization = req.headers.authorization;
@@ -109,6 +129,7 @@ const verifyJWT = (req, res, next) => {
   try {
     const users = mdbClient.db("travelago").collection("users");
     const groups = mdbClient.db("travelago").collection("groups");
+    const posts = mdbClient.db("travelago").collection("posts");
 
     // self verification
     const verifySelf = async (req, res, next) => {
@@ -173,6 +194,14 @@ const verifyJWT = (req, res, next) => {
       res.send(result);
     });
 
+    // get specific group data
+    app.get("/groups/id/:gid", verifyJWT, async (req, res) => {
+      const query = { _id: new ObjectId(req.params.gid) };
+      const result = await groups.findOne(query);
+
+      res.send(result);
+    });
+
     // create group
     app.post("/groups/:identifier", verifyJWT, verifySelf, async (req, res) => {
       const group = req.body;
@@ -189,6 +218,17 @@ const verifyJWT = (req, res, next) => {
       upload.single("groupImg"),
       uploadGI
     );
+
+    // create group post
+    app.post("/posts", verifyJWT, async (req, res) => {
+      const post = req.body;
+      const result = await posts.insertOne(post);
+
+      res.send(result);
+    });
+
+    // upload group post image to server
+    app.post("/posts/upload-pi", verifyJWT, upload.single("postImg"), uploadPI);
 
     // test mongodb connection
     mdbClient

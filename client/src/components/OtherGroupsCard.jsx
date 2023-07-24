@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { IKImage } from "imagekitio-react";
 import { FaPlus } from "react-icons/fa6";
 
-const MyGroupsCard = ({ group }) => {
+const OtherGroupsCard = ({ connectGroup, group }) => {
   const { _id, groupImg, groupName } = group;
   const navigate = useNavigate();
 
@@ -32,7 +32,10 @@ const MyGroupsCard = ({ group }) => {
           >
             View group
           </button>
-          <button className="btn btn-sm bg-cyan-500 hover:bg-transparent text-white hover:text-cyan-500 !border-cyan-500 rounded normal-case">
+          <button
+            className="btn btn-sm bg-cyan-500 hover:bg-transparent text-white hover:text-cyan-500 !border-cyan-500 rounded normal-case"
+            onClick={(_) => connectGroup(_id, groupName)}
+          >
             <FaPlus />
           </button>
         </div>
@@ -41,4 +44,4 @@ const MyGroupsCard = ({ group }) => {
   );
 };
 
-export default MyGroupsCard;
+export default OtherGroupsCard;

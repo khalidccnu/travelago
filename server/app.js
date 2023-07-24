@@ -201,7 +201,10 @@ const verifyJWT = (req, res, next) => {
 
     // get all groups data
     app.get("/groups/:identifier", verifyJWT, async (req, res) => {
-      const query = { owner: { $not: { $eq: req.params.identifier } } };
+      const query = {
+        owner: { $not: { $eq: req.params.identifier } },
+        users: { $nin: [req.params.identifier] },
+      };
       const cursor = groups.find(query).sort({ groupName: 1 });
       const result = await cursor.toArray();
 
@@ -232,6 +235,25 @@ const verifyJWT = (req, res, next) => {
       upload.single("groupImg"),
       uploadGI
     );
+
+    // connect group
+    app.put("/groups/:uid/:gid", verifyJWT, async (req, res) => {
+      await users.updateOne(
+        { _id: req.params.uid },
+        {
+          $push: { groups: req.params.gid },
+        }
+      );
+
+      await groups.updateOne(
+        { _id: new ObjectId(req.params.gid) },
+        {
+          $push: { users: req.params.uid },
+        }
+      );
+
+      res.status(200).send({ success: true, message: "OK!" });
+    });
 
     // delete group
     app.delete(

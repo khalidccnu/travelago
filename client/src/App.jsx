@@ -4,6 +4,7 @@ import { IKContext } from "imagekitio-react";
 import AuthProvider from "./providers/AuthProvider.jsx";
 import Home from "./pages/Home.jsx";
 import Error from "./pages/Error.jsx";
+import Profile from "./pages/Profile.jsx";
 import Groups from "./pages/Groups.jsx";
 import MyGroups from "./pages/MyGroups.jsx";
 import OtherGroups from "./pages/OtherGroups.jsx";
@@ -15,6 +16,10 @@ const App = () => {
       element: <Home />,
       errorElement: <Error />,
       children: [
+        {
+          path: "profile",
+          element: <Profile />,
+        },
         {
           path: "groups",
           element: <Groups />,

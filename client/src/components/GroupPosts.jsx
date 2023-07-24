@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import useAxiosIns from "../hooks/useAxiosIns.js";
 import GroupPost from "./GroupPost.jsx";
 
-const GroupPosts = ({ _id, group_id }) => {
+const GroupPosts = ({ isReload, _id, group_id }) => {
   const axiosIns = useAxiosIns();
   const [isPostsLoading, setPostsLoading] = useState(true);
   const [posts, setPosts] = useState([]);
@@ -16,7 +16,7 @@ const GroupPosts = ({ _id, group_id }) => {
         });
       }
     },
-    [group_id]
+    [group_id, isReload]
   );
 
   return !isPostsLoading ? (

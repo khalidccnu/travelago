@@ -5,7 +5,7 @@ import { FaUpload } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import useAxiosIns from "../hooks/useAxiosIns.js";
 
-const GroupUploadPost = ({ _id, group_id }) => {
+const GroupUploadPost = ({ isReload, setReload, _id, group_id }) => {
   const axiosIns = useAxiosIns();
   const formik = useFormik({
     initialValues: {
@@ -34,6 +34,7 @@ const GroupUploadPost = ({ _id, group_id }) => {
         .then((_) => {
           formikHelpers.resetForm();
           toast.success("New post created!");
+          setReload(!isReload);
         });
     },
   });

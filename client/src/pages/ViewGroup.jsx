@@ -10,6 +10,7 @@ import GroupPosts from "../components/GroupPosts.jsx";
 const ViewGroup = () => {
   const { gid } = useParams();
   const axiosIns = useAxiosIns();
+  const [isReload, setReload] = useState(false);
   const [isGroupLoading, setGroupLoading] = useState(true);
   const [group, setGroup] = useState([]);
   const { _id: group_id, groupImg, groupName } = group ?? {};
@@ -49,9 +50,14 @@ const ViewGroup = () => {
       </div>
       <div>
         {/* write post */}
-        <GroupUploadPost _id={_id} group_id={group_id} />
+        <GroupUploadPost
+          isReload={isReload}
+          setReload={setReload}
+          _id={_id}
+          group_id={group_id}
+        />
         {/* show group posts */}
-        <GroupPosts _id={_id} group_id={group_id} />
+        <GroupPosts isReload={isReload} _id={_id} group_id={group_id} />
       </div>
     </div>
   );

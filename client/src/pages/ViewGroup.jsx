@@ -59,7 +59,7 @@ const ViewGroup = () => {
           group_id={group_id}
         />
         {/* show group posts */}
-        <GroupPosts isReload={isReload} _id={_id} group_id={group_id} />
+        <GroupPosts isReload={isReload} group_id={group_id} />
       </div>
       {/* group members modal */}
       <dialog id="members_modal" className="modal">

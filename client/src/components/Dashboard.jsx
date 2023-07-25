@@ -49,11 +49,19 @@ const Dashboard = () => {
           <div className="md:sticky md:top-28">
             {/* user image */}
             <figure className="w-20 h-20 rounded-full mx-auto overflow-hidden">
-              <IKImage
-                path={userImg}
-                className="w-full h-full object-cover"
-                transformation={[{ q: "40" }]}
-              />
+              {userImg?.includes("https") ? (
+                <img
+                  src={userImg}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <IKImage
+                  path={userImg}
+                  className="w-full h-full object-cover"
+                  transformation={[{ q: "40" }]}
+                />
+              )}
             </figure>
             {/* user name */}
             <h2 className="font-bold text-center mt-3">{fullName}</h2>

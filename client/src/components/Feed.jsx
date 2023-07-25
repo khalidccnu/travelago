@@ -30,7 +30,7 @@ const Feed = () => {
       {posts.length ? (
         <div className={`grid grid-cols-1 gap-7 max-w-lg mx-auto mt-10`}>
           {posts.map((post) => (
-            <GroupPost key={post._id} _id={_id} post={post} />
+            <GroupPost key={post._id} post={post} />
           ))}
         </div>
       ) : (

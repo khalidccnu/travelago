@@ -13,11 +13,15 @@ const Profile = () => {
       <div className="bg-white shadow-xl rounded-lg py-3">
         {/* user image */}
         <figure className="w-32 h-32 rounded-full mx-auto overflow-hidden">
-          <IKImage
-            path={userImg}
-            className="w-full h-full object-cover"
-            transformation={[{ q: "40" }]}
-          />
+          {userImg?.includes("https") ? (
+            <img src={userImg} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <IKImage
+              path={userImg}
+              className="w-full h-full object-cover"
+              transformation={[{ q: "40" }]}
+            />
+          )}
         </figure>
         <div className="p-2">
           {/* user name */}

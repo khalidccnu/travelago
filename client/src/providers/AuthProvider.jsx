@@ -13,6 +13,7 @@ import { auth, googleProvider } from "../utils/firebase.config.js";
 export const AuthContext = createContext({});
 
 const AuthProvider = ({ children }) => {
+  const [isFBUnHold, setFBUnHold] = useState(true);
   const [isUserLoading, setUserLoading] = useState(true);
   const [user, setUser] = useState(null);
 
@@ -30,7 +31,7 @@ const AuthProvider = ({ children }) => {
         .then((response) => (values.userImg = response.data.filePath));
     }
 
-    return await axios.post(`${import.meta.env.VITE_API_URL}/users`, {
+    return axios.post(`${import.meta.env.VITE_API_URL}/users`, {
       _id: userId,
       ...values,
     });
@@ -40,20 +41,27 @@ const AuthProvider = ({ children }) => {
   const signInWithEP = async (email, password) => {
     setUserLoading(true);
 
-    return await signInWithEmailAndPassword(auth, email, password);
+    const signIn = await signInWithEmailAndPassword(auth, email, password);
+
+    setFBUnHold(true);
+    return signIn;
   };
 
   // get user google account authentication from firebase
   const signInWithGoogle = async (_) => {
     setUserLoading(true);
 
-    return await signInWithPopup(auth, googleProvider).then((userCred) =>
-      createUser(userCred.user.uid, {
-        email: userCred.user.email,
-        fullName: userCred.user.displayName,
-        userImg: userCred.user.photoURL,
-      })
+    const signIn = await signInWithPopup(auth, googleProvider).then(
+      (userCred) =>
+        createUser(userCred.user.uid, {
+          email: userCred.user.email,
+          fullName: userCred.user.displayName,
+          userImg: userCred.user.photoURL,
+        })
     );
+
+    setFBUnHold(true);
+    return signIn;
   };
 
   // create user in firebase
@@ -61,13 +69,18 @@ const AuthProvider = ({ children }) => {
     setUserLoading(true);
     const { email, password } = values;
 
-    return await createUserWithEmailAndPassword(auth, email, password).then(
-      (userCred) => createUser(userCred.user.uid, values)
-    );
+    const signUp = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    ).then((userCred) => createUser(userCred.user.uid, values));
+
+    setFBUnHold(true);
+    return signUp;
   };
 
   // user logout
-  const logOut = async (_) => await signOut(auth);
+  const logOut = (_) => signOut(auth);
 
   // initialize authentication info
   const authInfo = {
@@ -81,25 +94,28 @@ const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // change state form sign-in to sign-out or vice-versa
-    const authChange = onAuthStateChanged(auth, async (userCred) => {
-      if (userCred) {
-        setUser(userCred);
+    if (isFBUnHold) {
+      // change state form sign-in to sign-out or vice-versa
+      const authChange = onAuthStateChanged(auth, async (userCred) => {
+        if (userCred) {
+          setUser(userCred);
 
-        // get jwt token from server
-        await axios
-          .post(`${import.meta.env.VITE_API_URL}/jwt`, { _id: userCred.uid })
-          .then((response) => localStorage.setItem("_at", response.data));
-      } else {
-        setUser(null);
-        localStorage.removeItem("_at");
-      }
+          // get jwt token from server
+          await axios
+            .post(`${import.meta.env.VITE_API_URL}/jwt`, { _id: userCred.uid })
+            .then((response) => localStorage.setItem("_at", response.data));
+        } else {
+          setFBUnHold(false);
+          setUser(null);
+          localStorage.removeItem("_at");
+        }
 
-      setUserLoading(false);
-    });
+        setUserLoading(false);
+      });
 
-    return () => authChange();
-  }, []);
+      return () => authChange();
+    }
+  }, [isFBUnHold]);
 
   return (
     <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>

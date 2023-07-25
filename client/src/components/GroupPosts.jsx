@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import useAxiosIns from "../hooks/useAxiosIns.js";
 import GroupPost from "./GroupPost.jsx";
 
-const GroupPosts = ({ isReload, _id, group_id }) => {
+const GroupPosts = ({ isReload, group_id }) => {
   const axiosIns = useAxiosIns();
   const [isPostsLoading, setPostsLoading] = useState(true);
   const [posts, setPosts] = useState([]);
@@ -23,7 +23,7 @@ const GroupPosts = ({ isReload, _id, group_id }) => {
     posts.length ? (
       <div className={`grid grid-cols-1 gap-7 max-w-lg mx-auto mt-10`}>
         {posts.map((post) => (
-          <GroupPost key={post._id} _id={_id} post={post} />
+          <GroupPost key={post._id} post={post} />
         ))}
       </div>
     ) : (

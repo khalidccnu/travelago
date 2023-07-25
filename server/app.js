@@ -1,22 +1,22 @@
 // modules
 require("dotenv").config();
-const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const multer = require("multer");
 const imageKit = require("imagekit");
 const jwt = require("jsonwebtoken");
+const morgan = require("morgan");
 
 // init
 const app = express();
 const port = process.env.PORT || 5000;
-const upload = multer({ dest: "uploads/" });
+const uploadMulter = multer();
 
 // control cors
 const corsOptions = {
   origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
   optionSuccessStatus: 200,
 };
@@ -24,15 +24,7 @@ const corsOptions = {
 // middlewares
 app.use(cors(corsOptions));
 app.use(express.json());
-
-// mongodb config
-const mdbClient = new MongoClient(process.env.MONGODB_URI, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
+app.use(morgan("dev"));
 
 // imagekit authentication
 const imagekit = new imageKit({
@@ -41,64 +33,32 @@ const imagekit = new imageKit({
   urlEndpoint: `https://ik.imagekit.io/` + process.env.IK_ID,
 });
 
-// upload user image to imagekit
-const uploadUI = async (req, res) => {
-  const imgBuffer = await fs.promises.readFile(req.file.path);
+// upload image to imagekit
+const uploadToIK = async (req, res) => {
+  let fieldName = req.file.fieldname.replace("Img", "");
 
-  await imagekit
+  switch (fieldName) {
+    case "user":
+      fieldName = "users";
+      break;
+    case "group":
+      fieldName = "groups";
+      break;
+    case "post":
+      fieldName = "posts";
+      break;
+    default:
+      fieldName = "";
+  }
+
+  imagekit
     .upload({
-      file: imgBuffer,
+      file: req.file.buffer,
       fileName: req.file.originalname,
-      folder: "travelago/users",
+      folder: `travelago/${fieldName}`,
     })
-    .then((response) => {
-      fs.unlinkSync(req.file.path);
-      res.send(response);
-    })
-    .catch((error) => {
-      fs.unlinkSync(req.file.path);
-      res.send(error);
-    });
-};
-
-// upload group image to imagekit
-const uploadGI = async (req, res) => {
-  const imgBuffer = await fs.promises.readFile(req.file.path);
-
-  await imagekit
-    .upload({
-      file: imgBuffer,
-      fileName: req.file.originalname,
-      folder: "travelago/groups",
-    })
-    .then((response) => {
-      fs.unlinkSync(req.file.path);
-      res.send(response);
-    })
-    .catch((error) => {
-      fs.unlinkSync(req.file.path);
-      res.send(error);
-    });
-};
-
-// upload group post image to imagekit
-const uploadPI = async (req, res) => {
-  const imgBuffer = await fs.promises.readFile(req.file.path);
-
-  await imagekit
-    .upload({
-      file: imgBuffer,
-      fileName: req.file.originalname,
-      folder: "travelago/posts",
-    })
-    .then((response) => {
-      fs.unlinkSync(req.file.path);
-      res.send(response);
-    })
-    .catch((error) => {
-      fs.unlinkSync(req.file.path);
-      res.send(error);
-    });
+    .then((response) => res.send(response))
+    .catch((error) => res.send(error));
 };
 
 // verify token from client
@@ -125,21 +85,28 @@ const verifyJWT = (req, res, next) => {
   );
 };
 
+// self verification
+const verifySelf = async (req, res, next) => {
+  if (req.decoded._id !== req.params.identifier)
+    return res.status(403).send({ error: true, message: "Forbidden access!" });
+
+  next();
+};
+
+// mongodb config
+const mdbClient = new MongoClient(process.env.MONGODB_URI, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
+
 (async (_) => {
   try {
     const users = mdbClient.db("travelago").collection("users");
     const groups = mdbClient.db("travelago").collection("groups");
     const posts = mdbClient.db("travelago").collection("posts");
-
-    // self verification
-    const verifySelf = async (req, res, next) => {
-      if (req.decoded._id !== req.params.identifier)
-        return res
-          .status(403)
-          .send({ error: true, message: "Forbidden access!" });
-
-      next();
-    };
 
     // get self user data
     app.get(
@@ -183,7 +150,7 @@ const verifyJWT = (req, res, next) => {
     });
 
     // upload user image to server
-    app.post("/users/upload-ui", upload.single("userImg"), uploadUI);
+    app.post("/users/upload-ui", uploadMulter.single("userImg"), uploadToIK);
 
     // get self groups data
     app.get(
@@ -270,8 +237,8 @@ const verifyJWT = (req, res, next) => {
       "/groups/upload-gi/:identifier",
       verifyJWT,
       verifySelf,
-      upload.single("groupImg"),
-      uploadGI
+      uploadMulter.single("groupImg"),
+      uploadToIK
     );
 
     // connect group
@@ -370,7 +337,12 @@ const verifyJWT = (req, res, next) => {
     });
 
     // upload group post image to server
-    app.post("/posts/upload-pi", verifyJWT, upload.single("postImg"), uploadPI);
+    app.post(
+      "/posts/upload-pi",
+      verifyJWT,
+      uploadMulter.single("postImg"),
+      uploadToIK
+    );
 
     // test mongodb connection
     mdbClient
@@ -380,14 +352,9 @@ const verifyJWT = (req, res, next) => {
   } catch (err) {
     console.log("Did not connect to MongoDB! " + err.message);
   } finally {
-    await mdbClient.close();
+    // await mdbClient.close();
   }
 })();
-
-// check api running or not
-app.get("/", (req, res) => {
-  res.send("Travelago is running...");
-});
 
 // get jwt token
 app.post("/jwt", (req, res) => {
@@ -396,6 +363,11 @@ app.post("/jwt", (req, res) => {
   });
 
   res.send(token);
+});
+
+// check api running or not
+app.get("/", (req, res) => {
+  res.send("Travelago is running...");
 });
 
 app.listen(port, (_) => {

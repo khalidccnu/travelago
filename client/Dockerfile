@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:latest as nodework
 
 WORKDIR /app
 
@@ -6,6 +6,17 @@ COPY . .
 
 RUN npm install
 
-EXPOSE 9000
+RUN npm run build
 
-CMD ["npm", "start"]
+
+FROM nginx:latest
+
+WORKDIR /usr/share/nginx/html
+
+RUN rm -rf ./*
+
+COPY --from=nodework /app/dist .
+
+EXPOSE 80
+
+CMD [ "nginx", "-g", "daemon off;" ]
